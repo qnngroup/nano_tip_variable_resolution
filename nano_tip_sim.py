@@ -38,6 +38,15 @@ def run_simulation(save_prefix,
                    Z_1=-0.2,
                    Z_2=0.2):
 
+    #Interpolate to next resolution step for high-res region
+    dx = 1/res
+    X_1 = np.ceil(X_1/dx)*dx
+    X_2 = np.ceil(X_2/dx)*dx
+    Y_1 = np.ceil(Y_1/dx)*dx
+    Y_2 = np.ceil(Y_2/dx)*dx
+    Z_1 = np.ceil(Z_1/dx)*dx
+    Z_2 = np.ceil(Z_2/dx)*dx
+
     #Dump all the settings to a file:
     settings_file = h5py.File(Path(sys.argv[0]).stem +
                               '-' + save_prefix +
@@ -67,15 +76,6 @@ def run_simulation(save_prefix,
     
     #Convert theta to radians
     theta = theta_deg*np.pi/180
-
-    #Interpolate to next resolution step for high-res region
-    dx = 1/res
-    X_1 = np.ceil(X_1/dx)*dx
-    X_2 = np.ceil(X_2/dx)*dx
-    Y_1 = np.ceil(Y_1/dx)*dx
-    Y_2 = np.ceil(Y_2/dx)*dx
-    Z_1 = np.ceil(Z_1/dx)*dx
-    Z_2 = np.ceil(Z_2/dx)*dx
 
     eps_tip = calc_eps_r(n_tip, k_tip)
     sig_d_tip = calc_sig_d(n_tip, k_tip, fcen)
