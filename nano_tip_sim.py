@@ -2,10 +2,18 @@
 import meep as mp
 import numpy as np
 import h5py
+import sys
+from pathlib import Path
 
-#----------------
-# Settings
-#----------------
+#Functions for calculating index of refraction -- meep style
+def calc_sig_d(n, k, fcen):
+    eps = (n + 1j*k)**2
+    eps_r = np.real(eps)
+    return 2*np.pi*fcen*np.imag(eps)/eps_r
+
+def calc_eps_r(n, k):
+    eps = (n + 1j*k)**2
+    return np.real(eps)
 
 def run_simulation(save_prefix,
                    tip_radius=0.007,
@@ -31,7 +39,9 @@ def run_simulation(save_prefix,
                    Z_2=0.2):
 
     #Dump all the settings to a file:
-    settings_file = h5py.File('nano_tip_sim-' + save_prefix + '_settings.h5', 'w')
+    settings_file = h5py.File(Path(sys.argv[0]).stem +
+                              '-' + save_prefix +
+                              '_settings.h5', 'w')
     settings_file.create_dataset('tip_radius', data=tip_radius)
     settings_file.create_dataset('cone_height', data=cone_height)
     settings_file.create_dataset('trunk_radius', data=trunk_radius)
@@ -47,20 +57,25 @@ def run_simulation(save_prefix,
     settings_file.create_dataset('dpml', data=dpml)
     settings_file.create_dataset('res', data=res)
     settings_file.create_dataset('res_factor', data=res_factor)
+    settings_file.create_dataset('X_1', data=X_1)
+    settings_file.create_dataset('X_2', data=X_2)
+    settings_file.create_dataset('Y_1', data=Y_1)
+    settings_file.create_dataset('Y_2', data=Y_2)
+    settings_file.create_dataset('Z_1', data=Z_1)
+    settings_file.create_dataset('Z_2', data=Z_2)
     settings_file.close();
     
     #Convert theta to radians
     theta = theta_deg*np.pi/180
-    
-    #Functions for calculating index of refraction -- meep style
-    def calc_sig_d(n, k, fcen):
-        eps = (n + 1j*k)**2
-        eps_r = np.real(eps)
-        return 2*np.pi*fcen*np.imag(eps)/eps_r
 
-    def calc_eps_r(n, k):
-        eps = (n + 1j*k)**2
-        return np.real(eps)
+    #Interpolate to next resolution step for high-res region
+    dx = 1/res
+    X_1 = np.floor(X_1/dx)*dx
+    X_2 = np.floor(X_2/dx)*dx
+    Y_1 = np.floor(Y_1/dx)*dx
+    Y_2 = np.floor(Y_2/dx)*dx
+    Z_1 = np.floor(Z_1/dx)*dx
+    Z_2 = np.floor(Z_2/dx)*dx
 
     eps_tip = calc_eps_r(n_tip, k_tip)
     sig_d_tip = calc_sig_d(n_tip, k_tip, fcen)
