@@ -7,40 +7,6 @@ import h5py
 # Settings
 #----------------
 
-#Save Settings
-save_prefix = "t_shift_175mrad_r1000_7nmrad"
-
-#Tip Properties
-tip_radius = 0.007
-cone_height = 0.364
-trunk_radius = 0.275
-
-#Variable resolution properties
-X_1 = -1.1*tip_radius
-X_2 = 1.1*tip_radius
-Y_1 = -2*tip_radius
-Y_2 = 2*tip_radius
-Z_1 = -1.1*tip_radius
-Z_2 = 1.1*tip_radius
-
-sx = 0.8;
-sy = 1.5;
-sz = 1.0;
-dpml = 0.1;
-
-sample = 20;
-fcen = 1.25;
-res = 1000;
-res_factor = 0.2;
-waves = 7.5;
-theta = 0.175;
-
-#Tip Properties
-n_tip = 3.694
-#n_tip = 1.0
-k_tip = 0.0
-#k_tip = 0.0065435
-
 def run_simulation(save_prefix,
                    tip_radius=0.007,
                    cone_height=0.364,
@@ -56,7 +22,13 @@ def run_simulation(save_prefix,
                    sz=1.0,
                    dpml=0.1,
                    res=1000,
-                   res_factor=0.2):
+                   res_factor=0.2,
+                   X_1=-0.2,
+                   X_2=0.2,
+                   Y_1=-0.2,
+                   Y_2=0.2,
+                   Z_1=-0.2,
+                   Z_2=0.2):
 
     #Dump all the settings to a file:
     settings_file = h5py.File('nano_tip_sim-' + save_prefix + '_settings.h5', 'w')
