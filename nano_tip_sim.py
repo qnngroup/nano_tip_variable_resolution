@@ -40,11 +40,11 @@ def run_simulation(save_prefix,
 
     #Interpolate to next resolution step for high-res region
     dx = 1/res
-    X_1 = np.ceil(X_1/dx)*dx
+    X_1 = np.floor(X_1/dx)*dx
     X_2 = np.ceil(X_2/dx)*dx
-    Y_1 = np.ceil(Y_1/dx)*dx
+    Y_1 = np.floor(Y_1/dx)*dx
     Y_2 = np.ceil(Y_2/dx)*dx
-    Z_1 = np.ceil(Z_1/dx)*dx
+    Z_1 = np.floor(Z_1/dx)*dx
     Z_2 = np.ceil(Z_2/dx)*dx
 
     #Dump all the settings to a file:
