@@ -113,38 +113,38 @@ def run_simulation(save_prefix,
                      radius=tip_radius)]
 
 
-    def mat_func(r):
+    def mat_func(r_prime):
 
-        r_prime_x = r.x
-        r_prime_y = r.y
-        r_prime_z = r.z
+        r_x = r_prime.x
+        r_y = r_prime.y
+        r_z = r_prime.z
 
         x_fac = 1
         y_fac = 1
         z_fac = 1
 
-        if(r.x < X_1):
+        if(r_prime.x < X_1):
             x_fac = res_factor
-            r_prime_x = X_1 + (r.x - X_1)/res_factor
-        elif(r.x > X_2):
+            r_x = X_1 + (r_prime.x - X_1)/res_factor
+        elif(r_prime.x > X_2):
             x_fac = res_factor
-            r_prime_x = X_2 + (r.x - X_2)/res_factor
+            r_x = X_2 + (r_prime.x - X_2)/res_factor
 
-        if(r.y < Y_1):
+        if(r_prime.y < Y_1):
             y_fac = res_factor
-            r_prime_y = Y_1 + (r.y - Y_1)/res_factor
-        elif(r.y > Y_2):
+            r_y = Y_1 + (r_prime.y - Y_1)/res_factor
+        elif(r_prime.y > Y_2):
             y_fac = res_factor
-            r_prime_y = Y_2 + (r.y - Y_2)/res_factor
+            r_y = Y_2 + (r_prime.y - Y_2)/res_factor
 
-        if(r.z < Z_1):
+        if(r_prime.z < Z_1):
             z_fac = res_factor
-            r_prime_z = Z_1 + (r.z - Z_1)/res_factor
-        elif(r.z > Z_2):
+            r_z = Z_1 + (r_prime.z - Z_1)/res_factor
+        elif(r_prime.z > Z_2):
             z_fac = res_factor
-            r_prime_z = Z_2 + (r.z - Z_2)/res_factor
+            r_z = Z_2 + (r_prime.z - Z_2)/res_factor
 
-        r_prime = mp.Vector3(r_prime_x, r_prime_y, r_prime_z)
+        r = mp.Vector3(r_x, r_y, r_z)
     
         J = np.matrix([[x_fac, 0, 0], [0, y_fac, 0], [0, 0, z_fac]]);
 
@@ -178,65 +178,65 @@ def run_simulation(save_prefix,
     #Create source amplitude function:
     ky = fcen*np.sin(theta)
     ky_prime = ky*sY/sY_prime
-    def my_amp_func_y(r):
+    def my_amp_func_y(r_prime):
 
-        r_prime_y = r.y
-        y_fac = 1
+        r_y = r_prime.y
+        y_fac = 1/res_factor
         
-        if((r.x >= X_1)and(r.x <= X_2)):
-            x_fac = 1
+        if((r_prime.x >= X_1)and(r_prime.x <= X_2)):
+            x_fac = 1.0/res_factor
         else:
-            x_fac = res_factor
+            x_fac = 1.0
 
-        if(r.y < Y_1):
-            y_fac = res_factor
-            r_prime_y = Y_1 + (r.y - Y_1)/res_factor
-        elif(r.y > Y_2):
-            y_fac = res_factor
-            r_prime_y = Y_2 + (r.y - Y_2)/res_factor
+        if(r_prime.y < Y_1):
+            y_fac = 1.0
+            r_y = Y_1 + (r_prime.y - Y_1)/res_factor
+        elif(r_prime.y > Y_2):
+            y_fac = 1.0
+            r_y = Y_2 + (r_prime.y - Y_2)/res_factor
 
-        if((r.z >= Z_1)and(r.z <= Z_2)):
-            z_fac = 1
+        if((r_prime.z >= Z_1)and(r_prime.z <= Z_2)):
+            z_fac = 1.0/res_factor
         else:
-            z_fac = res_factor
+            z_fac = 1.0
         
         J = np.matrix([[x_fac, 0, 0], [0, y_fac, 0], [0, 0, z_fac]]);
 
         transform = J/np.linalg.det(J);
     
-        phase_factor = np.exp(-1*2*1j*np.pi*ky*r_prime_y)
+        phase_factor = np.exp(-1*2*1j*np.pi*ky*r_y)
         amp_factor = transform.diagonal()[0, 1]
     
         return amp_factor*phase_factor
 
-    def my_amp_func_z(r):
+    def my_amp_func_z(r_prime):
 
-        r_prime_y = r.y
-        y_fac = 1
+        r_y = r_prime.y
+        y_fac = 1.0/res_factor
 
-        if((r.x >= X_1)and(r.x <= X_2)):
-            x_fac = 1
+        if((r_prime.x >= X_1)and(r_prime.x <= X_2)):
+            x_fac = 1.0/res_factor
         else:
-            x_fac = res_factor
+            x_fac = 1.0
 
-        if(r.y < Y_1):
-            y_fac = res_factor
-            r_prime_y = Y_1 + (r.y - Y_1)/res_factor
-        elif(r.y > Y_2):
-            y_fac = res_factor
-            r_prime_y = Y_2 + (r.y - Y_2)/res_factor
+        if(r_prime.y < Y_1):
+            y_fac = 1.0
+            r_y = Y_1 + (r_prime.y - Y_1)/res_factor
+        elif(r_prime.y > Y_2):
+            y_fac = 1.0
+            r_y = Y_2 + (r_prime.y - Y_2)/res_factor
         
 
-        if((r.z >= Z_1)and(r.z <= Z_2)):
-            z_fac = 1
+        if((r_prime.z >= Z_1)and(r_prime.z <= Z_2)):
+            z_fac = 1.0/res_factor
         else:
-            z_fac = res_factor
+            z_fac = 1.0
         
         J = np.matrix([[x_fac, 0, 0], [0, y_fac, 0], [0, 0, z_fac]]);
 
         transform = J/np.linalg.det(J);
     
-        phase_factor = np.exp(-1*2*1j*np.pi*ky*r_prime_y)
+        phase_factor = np.exp(-1*2*1j*np.pi*ky*r_y)
         amp_factor = transform.diagonal()[0, 2]
     
         return amp_factor*phase_factor
