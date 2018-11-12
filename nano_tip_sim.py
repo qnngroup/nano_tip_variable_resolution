@@ -288,8 +288,84 @@ def run_simulation(save_prefix,
                         verbose=True)
 
 
-    sim.run(mp.in_volume(monitor_xy, mp.to_appended(save_prefix + "Ey_xy", mp.at_every(1/fcen/sample, mp.output_efield))),
-            mp.in_volume(monitor_yz, mp.to_appended(save_prefix + "Ey_yz", mp.at_every(1/fcen/sample, mp.output_efield))), until=waves/fcen)
+    sim.run(mp.in_volume(monitor_xy, mp.to_appended(save_prefix + "E_xy", mp.at_every(1/fcen/sample, mp.output_efield))),
+            mp.in_volume(monitor_yz, mp.to_appended(save_prefix + "E_yz", mp.at_every(1/fcen/sample, mp.output_efield))), until=waves/fcen)
 
     
+def visualize_fields_yz(fields_file, settings_file):
 
+    settings_data = h5py.File(settings_file, 'r')
+    fields_data = h5py.File(fields_file, 'r')
+
+    tip_radius = np.array(settings_data['tip_radius'])
+    X_1 = np.array(settings_data['X_1'])
+    X_2 = np.array(settings_data['X_2'])
+    Y_1 = np.array(settings_data['Y_1'])
+    Y_2 = np.array(settings_data['Y_2'])
+    Z_1 = np.array(settings_data['Z_1'])
+    Z_2 = np.array(settings_data['Z_2'])
+
+    res = np.array(settings_data['res'])
+    res_factor = np.array(settings_data['res_factor'])
+
+    ey = np.array(fields_data['ey.r'])
+
+    #Spacing in real space
+    dr = 1/res
+
+    #Get the output size (time, Z, Y)
+    cell_size = ey.shape
+    z_center = cell_size[1]/2 - 1
+    y_center = cel_size[2]/2 - 1
+
+    Z = np.zeros((1, cell_size[1]))
+    Y = np.zeros((1, cell_size[2]))
+    Ey_fac = np.zeros(cell_size)
+
+    for k in range(z_center, cell_size[1]):
+
+        if((Z[k - 1] + dr) <= Z_2):
+            Z[k] = Z[k-1] + dr
+        else:
+            Z[k] = Z[k-1] + dk/res_factor
+
+
+    for k in np.arange(z_center-1, -1, -1):
+
+        if((Z[k+1] - dr) >= Z_1):
+            Z[k] = Z[k + 1] - dr
+        else:
+            Z[k] = Z[k+1] - dr/res_factor
+
+    for k in range(y_center, cell_size[2]):
+
+        Y_fac = 1
+        
+        if((Y[k - 1] + dr) <= Y_2):
+            Y[k] = Y[k-1] + dr
+            Y_fac = res_factor
+        else:
+            Y[k] = Y[k-1] + dk/res_factor
+
+        Ey_fac[:, :, k] = Y_fac
+
+
+    for k in np.arange(y_center-1, -1, -1):
+
+        Y_fac = 1
+        
+        if((Y[k+1] - dr) >= Y_1):
+            Y[k] = Y[k + 1] - dr
+            Y_fac = res_factor
+        else:
+            Y[k] = Y[k+1] - dr/res_factor
+
+
+        Ey_fac[:, :, k] = Y_fac
+
+
+    ey_out = ey*Ey_fac
+
+    return ey_out
+    
+    
