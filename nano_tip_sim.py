@@ -313,59 +313,143 @@ def visualize_fields_yz(fields_file, settings_file):
     #Spacing in real space
     dr = 1/res
 
-    #Get the output size (time, Z, Y)
+    #Get the output size (Y, Z, time)
     cell_size = ey.shape
     z_center = cell_size[1]/2 - 1
-    y_center = cel_size[2]/2 - 1
+    y_center = cell_size[0]/2 - 1
 
-    Z = np.zeros((1, cell_size[1]))
-    Y = np.zeros((1, cell_size[2]))
+    Z = np.zeros(cell_size[1])
+    Y = np.zeros(cell_size[0])
     Ey_fac = np.zeros(cell_size)
 
-    for k in range(z_center, cell_size[1]):
+    for k in range(int(z_center), int(cell_size[1])):
 
         if((Z[k - 1] + dr) <= Z_2):
             Z[k] = Z[k-1] + dr
         else:
-            Z[k] = Z[k-1] + dk/res_factor
+            Z[k] = Z[k-1] + dr/res_factor
 
 
     for k in np.arange(z_center-1, -1, -1):
 
+        k = int(k)
+        
         if((Z[k+1] - dr) >= Z_1):
             Z[k] = Z[k + 1] - dr
         else:
             Z[k] = Z[k+1] - dr/res_factor
 
-    for k in range(y_center, cell_size[2]):
+    for k in range(int(y_center), cell_size[0]):
 
         Y_fac = 1
         
         if((Y[k - 1] + dr) <= Y_2):
             Y[k] = Y[k-1] + dr
-            Y_fac = res_factor
+            Y_fac = 1.0/res_factor
         else:
-            Y[k] = Y[k-1] + dk/res_factor
+            Y[k] = Y[k-1] + dr/res_factor
 
-        Ey_fac[:, :, k] = Y_fac
+        Ey_fac[k, :, :] = Y_fac
 
 
     for k in np.arange(y_center-1, -1, -1):
 
+        k = int(k)
+        
         Y_fac = 1
         
         if((Y[k+1] - dr) >= Y_1):
             Y[k] = Y[k + 1] - dr
-            Y_fac = res_factor
+            Y_fac = 1.0/res_factor
         else:
             Y[k] = Y[k+1] - dr/res_factor
 
 
-        Ey_fac[:, :, k] = Y_fac
+        Ey_fac[k, :, :] = Y_fac
 
 
     ey_out = ey*Ey_fac
 
-    return ey_out
+    return ey_out, Y, Z
     
-    
+
+def visualize_fields_xy(fields_file, settings_file):
+
+    settings_data = h5py.File(settings_file, 'r')
+    fields_data = h5py.File(fields_file, 'r')
+
+    tip_radius = np.array(settings_data['tip_radius'])
+    X_1 = np.array(settings_data['X_1'])
+    X_2 = np.array(settings_data['X_2'])
+    Y_1 = np.array(settings_data['Y_1'])
+    Y_2 = np.array(settings_data['Y_2'])
+    Z_1 = np.array(settings_data['Z_1'])
+    Z_2 = np.array(settings_data['Z_2'])
+
+    res = np.array(settings_data['res'])
+    res_factor = np.array(settings_data['res_factor'])
+
+    ey = np.array(fields_data['ey.r'])
+
+    #Spacing in real space
+    dr = 1/res
+
+    #Get the output size (X, Y, time)
+    cell_size = ey.shape
+    x_center = cell_size[0]/2 - 1
+    y_center = cell_size[1]/2 - 1
+
+    X = np.zeros(cell_size[0])
+    Y = np.zeros(cell_size[1])
+    Ey_fac = np.zeros(cell_size)
+
+    for k in range(int(x_center), int(cell_size[0])):
+
+        if((X[k - 1] + dr) <= X_2):
+            X[k] = X[k-1] + dr
+        else:
+            X[k] = X[k-1] + dr/res_factor
+
+
+    for k in np.arange(x_center-1, -1, -1):
+
+        k = int(k)
+        
+        if((X[k+1] - dr) >= X_1):
+            X[k] = X[k + 1] - dr
+        else:
+            X[k] = X[k+1] - dr/res_factor
+
+    for k in range(int(y_center), cell_size[1]):
+
+        Y_fac = 1
+        
+        if((Y[k - 1] + dr) <= Y_2):
+            Y[k] = Y[k-1] + dr
+            Y_fac = 1.0/res_factor
+        else:
+            Y[k] = Y[k-1] + dr/res_factor
+
+        Ey_fac[k, :, :] = Y_fac
+
+
+    for k in np.arange(y_center-1, -1, -1):
+
+        k = int(k)
+        
+        Y_fac = 1
+        
+        if((Y[k+1] - dr) >= Y_1):
+            Y[k] = Y[k + 1] - dr
+            Y_fac = 1.0/res_factor
+        else:
+            Y[k] = Y[k+1] - dr/res_factor
+
+
+        Ey_fac[:, k, :] = Y_fac
+
+
+    ey_out = ey*Ey_fac
+
+    return ey_out, X, Y
+
