@@ -322,48 +322,27 @@ def visualize_fields_yz(fields_file, settings_file):
     Y = np.zeros(cell_size[0])
     Ey_fac = np.zeros(cell_size)
 
-    for k in range(int(z_center), int(cell_size[1])):
+    for k in range(0, cell_size[1]):
 
-        if((Z[k - 1] + dr) <= Z_2):
-            Z[k] = Z[k-1] + dr
-        else:
-            Z[k] = Z[k-1] + dr/res_factor
+        Z[k] = (k - z_center)*dr
 
-
-    for k in np.arange(z_center-1, -1, -1):
-
-        k = int(k)
+        if(Z[k] > Z_2):
+            Z[k] = (Z[k] - Z_2)/res_factor + Z_2
+        elif(Z[k] < Z_1):
+            Z[k] = (Z[k] - Z_1)/res_factor + Z_1
         
-        if((Z[k+1] - dr) >= Z_1):
-            Z[k] = Z[k + 1] - dr
-        else:
-            Z[k] = Z[k+1] - dr/res_factor
 
-    for k in range(int(y_center), cell_size[0]):
+    for k in range(0, cell_size[0]):
 
-        Y_fac = 1
-        
-        if((Y[k - 1] + dr) <= Y_2):
-            Y[k] = Y[k-1] + dr
-            Y_fac = 1.0/res_factor
-        else:
-            Y[k] = Y[k-1] + dr/res_factor
+        Y[k] = (k - y_center)*dr
+        Y_fac = 1.0/res_factor
 
-        Ey_fac[k, :, :] = Y_fac
-
-
-    for k in np.arange(y_center-1, -1, -1):
-
-        k = int(k)
-        
-        Y_fac = 1
-        
-        if((Y[k+1] - dr) >= Y_1):
-            Y[k] = Y[k + 1] - dr
-            Y_fac = 1.0/res_factor
-        else:
-            Y[k] = Y[k+1] - dr/res_factor
-
+        if(Y[k] > Y_2):
+            Y[k] = (Y[k] - Y_2)/res_factor + Y_2
+            Y_fac = 1.0
+        elif(Y[k] < Y_1):
+            Y[k] = (Y[k] - Y_1)/res_factor + Y_1
+            Y_fac = 1.0
 
         Ey_fac[k, :, :] = Y_fac
 
@@ -403,51 +382,31 @@ def visualize_fields_xy(fields_file, settings_file):
     Y = np.zeros(cell_size[1])
     Ey_fac = np.zeros(cell_size)
 
-    for k in range(int(x_center), int(cell_size[0])):
 
-        if((X[k - 1] + dr) <= X_2):
-            X[k] = X[k-1] + dr
-        else:
-            X[k] = X[k-1] + dr/res_factor
+    for k in range(0, cell_size[0]):
 
+        X[k] = (k - x_center)*dr
 
-    for k in np.arange(x_center-1, -1, -1):
-
-        k = int(k)
+        if(X[k] > X_2):
+            X[k] = (X[k] - X_2)/res_factor + X_2
+        elif(X[k] < X_1):
+            X[k] = (X[k] - X_1)/res_factor + X_1
         
-        if((X[k+1] - dr) >= X_1):
-            X[k] = X[k + 1] - dr
-        else:
-            X[k] = X[k+1] - dr/res_factor
 
-    for k in range(int(y_center), cell_size[1]):
+    for k in range(0, cell_size[1]):
 
-        Y_fac = 1
-        
-        if((Y[k - 1] + dr) <= Y_2):
-            Y[k] = Y[k-1] + dr
-            Y_fac = 1.0/res_factor
-        else:
-            Y[k] = Y[k-1] + dr/res_factor
+        Y[k] = (k - y_center)*dr
+        Y_fac = 1.0/res_factor
 
-        Ey_fac[k, :, :] = Y_fac
-
-
-    for k in np.arange(y_center-1, -1, -1):
-
-        k = int(k)
-        
-        Y_fac = 1
-        
-        if((Y[k+1] - dr) >= Y_1):
-            Y[k] = Y[k + 1] - dr
-            Y_fac = 1.0/res_factor
-        else:
-            Y[k] = Y[k+1] - dr/res_factor
-
+        if(Y[k] > Y_2):
+            Y[k] = (Y[k] - Y_2)/res_factor + Y_2
+            Y_fac = 1.0
+        elif(Y[k] < Y_1):
+            Y[k] = (Y[k] - Y_1)/res_factor + Y_1
+            Y_fac = 1.0
 
         Ey_fac[:, k, :] = Y_fac
-
+    
 
     ey_out = ey*Ey_fac
 
