@@ -153,7 +153,7 @@ def run_simulation(save_prefix,
         #  if no -- then leave it as air
         eps_point = 1.0;
         for kk in range(len(tip)):
-            if(mp.is_point_in_object(r_prime, tip[kk])):
+            if(mp.is_point_in_object(r, tip[kk])):
                 eps_point = eps_tip;
             
     
