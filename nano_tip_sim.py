@@ -36,7 +36,10 @@ def run_simulation(save_prefix,
                    Y_1=-0.2,
                    Y_2=0.2,
                    Z_1=-0.2,
-                   Z_2=0.2):
+                   Z_2=0.2,
+                   x_mon_rat = 1.0,
+                   y_mon_rat = 1.0,
+                   z_mon_rat = 1.0):
 
     #Interpolate to next resolution step for high-res region
     dx = 1/res
@@ -72,6 +75,9 @@ def run_simulation(save_prefix,
     settings_file.create_dataset('Y_2', data=Y_2)
     settings_file.create_dataset('Z_1', data=Z_1)
     settings_file.create_dataset('Z_2', data=Z_2)
+    settings_file.create_dataset('x_mon_rat', data=x_mon_rat)
+    settings_file.create_dataset('y_mon_rat', data=y_mon_rat)
+    settings_file.create_dataset('z_mon_rat', data=z_mon_rat)
     settings_file.close();
     
     #Convert theta to radians
@@ -85,6 +91,12 @@ def run_simulation(save_prefix,
     sY = 2*dpml + sy;
     sZ = 2*dpml + sz;
 
+    #Monitor sizes
+    x_mon = sx*x_mon_rat
+    y_mon = sx*y_mon_rat
+    z_mon = sx*z_mon_rat
+
+    #Calculate values in prime-space:
     sx_prime = sx*res_factor + (X_2 - X_1)*(1 - res_factor)
     sy_prime = sy*res_factor + (Y_2 - Y_1)*(1 - res_factor)
     sz_prime = sz*res_factor + (Z_2 - Z_1)*(1 - res_factor)
@@ -93,6 +105,22 @@ def run_simulation(save_prefix,
     sX_prime = 2*dpml_prime + sx_prime
     sY_prime = 2*dpml_prime + sy_prime
     sZ_prime = 2*dpml_prime + sz_prime
+
+    x_mon_prime = (x_mon/2.0 > X_2)*((x_mon/2.0 - X_2)*res_factor + X_2) +\
+                  (x_mon/2.0)*(x_mon/2.0 <= X_2) -\
+                  (-1*x_mon/2.0 < X_1)*((-1*x_mon/2.0 - X_1)*res_factor + X_1) -\
+                  (-1*x_mon/2.0)*(-1*x_mon/2.0 >= X_1)
+    
+    y_mon_prime = (y_mon/2.0 > Y_2)*((y_mon/2.0 - Y_2)*res_factor + Y_2) +\
+                  (y_mon/2.0)*(y_mon/2.0 <= Y_2) -\
+                  (-1*y_mon/2.0 < Y_1)*((-1*y_mon/2.0 - Y_1)*res_factor + Y_1) -\
+                  (-1*y_mon/2.0)*(-1*y_mon/2.0 >= Y_1)
+
+    z_mon_prime = (z_mon/2.0 > Z_2)*((z_mon/2.0 - Z_2)*res_factor + Z_2) +\
+                  (z_mon/2.0)*(z_mon/2.0 <= Z_2) -\
+                  (-1*z_mon/2.0 < Z_1)*((-1*z_mon/2.0 - Z_1)*res_factor + Z_1) -\
+                  (-1*z_mon/2.0)*(-1*z_mon/2.0 >= Z_1)
+    
 
     cell = mp.Vector3(sX_prime, sY_prime, sZ_prime)
 
@@ -268,8 +296,8 @@ def run_simulation(save_prefix,
 
     sources=[Ey_source, Ez_source]
 
-    monitor_xy = mp.Volume(center=mp.Vector3(0,0,0), size=mp.Vector3(sx_prime, sy_prime, 0)) 
-    monitor_yz = mp.Volume(center=mp.Vector3(0,0,0), size=mp.Vector3(0, sy_prime, sz_prime)) 
+    monitor_xy = mp.Volume(center=mp.Vector3(0,0,0), size=mp.Vector3(x_mon_prime, y_mon_prime, 0)) 
+    monitor_yz = mp.Volume(center=mp.Vector3(0,0,0), size=mp.Vector3(0, y_mon_prime, z_mon_prime)) 
 
 
     #Now make the simulation
